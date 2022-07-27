@@ -11,6 +11,8 @@ class MainViewController: UIViewController {
     
     private var newsService = NewsService()
     private var news: News?
+    private var currentPage:Int = 1
+    private var isLoading:Bool = false
     
     private var tableView:UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -23,7 +25,7 @@ class MainViewController: UIViewController {
         setupTableView()
         setupConstraints()
         setupRefreshControl()
-        loadNews(country: "ru")
+        loadNews(country: "ru",page: currentPage)
     }
     
     
@@ -34,6 +36,7 @@ class MainViewController: UIViewController {
         tableView.showsVerticalScrollIndicator = false
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.prefetchDataSource = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: NewsTableViewCell.identifier)
         view.addSubview(tableView)
@@ -58,7 +61,8 @@ class MainViewController: UIViewController {
     }
     
     @objc func refreshNews(){
-        loadNews(country: "ru")
+        currentPage = 1
+        loadNews(country: "ru",page:currentPage)
         tableView.refreshControl?.endRefreshing()
     }
 }
@@ -73,7 +77,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if news?.totalResults ?? 0 < 20{
+        if news?.totalResults ?? 0 < 20*(currentPage){
             return news?.totalResults ?? 0
         } else {
             return 20
@@ -100,8 +104,8 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 ///расширение, в котором описывается работа с сервером
 extension MainViewController {
-    func loadNews(country:String){
-        newsService.getNews(country: country) {[weak self] result in
+    func loadNews(country:String,page:Int){
+        newsService.getNews(country: country,page: page) {[weak self] result in
             switch result {
             case .success(let newsData):
                 DispatchQueue.main.async {
@@ -113,10 +117,43 @@ extension MainViewController {
             }
         }
     }
+    
+    func dopLoadNews(country:String,page:Int){
+        newsService.getNews(country: country,page: page) {[weak self] result in
+            switch result {
+            case .success(let newsData):
+                DispatchQueue.main.async {
+                    self?.dopNews(newNews: newsData)
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    func dopNews(newNews:News){
+        self.news?.articles?.append(contentsOf: newNews.articles ?? [])
+    }
 }
 
-//extension MainViewController:UITableViewDataSourcePrefetching {
-//    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-//        <#code#>
-//    }
-//}
+extension MainViewController:UITableViewDataSourcePrefetching {
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        guard
+            let maxRow = indexPaths.map({$0.row }).max(),
+            let totalResults = news?.totalResults
+        else{return}
+        if  maxRow > 18+((currentPage-1)*20) {
+            if totalResults/20 >= currentPage,
+                !isLoading
+            {
+                self.isLoading = true
+                currentPage+=1
+                dopLoadNews(country: "ru", page: currentPage)
+                isLoading = false
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    }
+}

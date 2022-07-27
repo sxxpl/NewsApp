@@ -58,7 +58,7 @@ class NewsTableViewCell: UITableViewCell {
             uiImage.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 15),
             uiImage.trailingAnchor.constraint(equalTo: contentView.readableContentGuide.trailingAnchor),
             uiImage.leadingAnchor.constraint(equalTo: contentView.readableContentGuide.leadingAnchor),
-            uiImage.heightAnchor.constraint(equalToConstant: contentView.readableContentGuide.layoutFrame.width*(628.0/1200.0)),
+            uiImage.heightAnchor.constraint(equalToConstant: 224),
             authorLabel.topAnchor.constraint(equalTo: uiImage.bottomAnchor, constant: 10),
             authorLabel.leadingAnchor.constraint(equalTo: contentView.readableContentGuide.leadingAnchor),
             authorLabel.trailingAnchor.constraint(equalTo: contentView.readableContentGuide.trailingAnchor),

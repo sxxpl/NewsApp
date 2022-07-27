@@ -17,10 +17,12 @@ class NewsService {
     
     
     ///метод получения новостей для определенной страны
-    func getNews(country:String,completion:@escaping (Swift.Result<News,Error>) -> ()) {
+    func getNews(country:String,page:Int,completion:@escaping (Swift.Result<News,Error>) -> ()) {
         let parameters:Parameters = [
             "apiKey" : apiKey,
-            "country" : country
+            "country" : country,
+            "page": page,
+            "pageSize": 20
         ]
         AF.request(baseUrl, parameters: parameters).responseData { response in
             guard let data = response.value else {

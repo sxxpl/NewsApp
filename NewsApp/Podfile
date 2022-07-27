@@ -1,0 +1,8 @@
+
+target 'NewsApp' do
+	pod 'RealmSwift', '~> 10.28.1', :modular_headers => true
+	pod 'Realm', '~> 10.28.1', :modular_headers => true
+	pod 'PromiseKit'
+	pod 'Alamofire'
+
+end

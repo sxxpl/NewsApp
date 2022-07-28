@@ -18,6 +18,8 @@
 		AD34C3A3288FEF9E00FB8F91 /* NewsNetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD34C3A2288FEF9E00FB8F91 /* NewsNetService.swift */; };
 		AD3ECF5A2890331700467606 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3ECF592890331700467606 /* UIImageExtension.swift */; };
 		AD3ECF5C2890390100467606 /* NewsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3ECF5B2890390100467606 /* NewsTableViewCell.swift */; };
+		AD3ECF612892FB9C00467606 /* CountryNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3ECF602892FB9C00467606 /* CountryNames.swift */; };
+		AD3ECF632893084000467606 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3ECF622893084000467606 /* File.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,8 @@
 		AD34C3A2288FEF9E00FB8F91 /* NewsNetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsNetService.swift; sourceTree = "<group>"; };
 		AD3ECF592890331700467606 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
 		AD3ECF5B2890390100467606 /* NewsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsTableViewCell.swift; sourceTree = "<group>"; };
+		AD3ECF602892FB9C00467606 /* CountryNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryNames.swift; sourceTree = "<group>"; };
+		AD3ECF622893084000467606 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		ED2887D850503AA7D3EAD645 /* libPods-NewsApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NewsApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -97,6 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				AD34C39F288FEC4700FB8F91 /* NewsJSONData.swift */,
+				AD3ECF602892FB9C00467606 /* CountryNames.swift */,
+				AD3ECF622893084000467606 /* File.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -253,7 +259,9 @@
 				AD34C385288FDA4400FB8F91 /* AppDelegate.swift in Sources */,
 				AD34C387288FDA4400FB8F91 /* SceneDelegate.swift in Sources */,
 				AD34C3A3288FEF9E00FB8F91 /* NewsNetService.swift in Sources */,
+				AD3ECF612892FB9C00467606 /* CountryNames.swift in Sources */,
 				AD34C39E288FDB6B00FB8F91 /* MainViewController.swift in Sources */,
+				AD3ECF632893084000467606 /* File.swift in Sources */,
 				AD3ECF5A2890331700467606 /* UIImageExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -405,9 +413,9 @@
 				DEVELOPMENT_TEAM = 8B29PPTYV5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NewsApp/Info.plist;
+				INFOPLIST_KEY_NSMainNibFile = Main;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -434,9 +442,9 @@
 				DEVELOPMENT_TEAM = 8B29PPTYV5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NewsApp/Info.plist;
+				INFOPLIST_KEY_NSMainNibFile = Main;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

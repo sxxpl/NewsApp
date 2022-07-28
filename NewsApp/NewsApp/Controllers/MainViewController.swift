@@ -13,19 +13,32 @@ class MainViewController: UIViewController {
     private var news: News?
     private var currentPage:Int = 1
     private var isLoading:Bool = false
+    var currentCountry:String = "ru"
     
     private var tableView:UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
+    
+    var langMenu:UIMenu{
+        let menuActions = country.allCases.map({(country) -> UIAction in
+            return UIAction(title: country.currentName , image: nil) { (_) in
+                self.changeCountry(country: country.rawValue)
+            }
+        })
+        
+        return UIMenu(title: "Change country", children: menuActions)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "News"
+        setupNavigationBar()
         setupTableView()
         setupConstraints()
         setupRefreshControl()
-        loadNews(country: "ru",page: currentPage)
+        loadNews(country: currentCountry,page: currentPage)
     }
     
     
@@ -42,6 +55,19 @@ class MainViewController: UIViewController {
         view.addSubview(tableView)
     }
     
+    func setupNavigationBar(){
+        let langImage = UIImage(systemName: "flag")
+        let langBarButtonItem = UIBarButtonItem(title: nil, image: langImage, primaryAction: nil, menu: langMenu)
+        langBarButtonItem.tintColor = .gray
+        navigationItem.rightBarButtonItem = langBarButtonItem
+    }
+            
+    func changeCountry(country:String){
+        currentCountry = country
+        currentPage = 1
+        loadNews(country:currentCountry,page:currentPage)
+    }
+            
     
     ///настройка констреинтов tableView
     func setupConstraints(){
@@ -62,7 +88,7 @@ class MainViewController: UIViewController {
     
     @objc func refreshNews(){
         currentPage = 1
-        loadNews(country: "ru",page:currentPage)
+        loadNews(country: currentCountry,page:currentPage)
         tableView.refreshControl?.endRefreshing()
     }
 }
@@ -70,10 +96,10 @@ class MainViewController: UIViewController {
 
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsTableViewCell.identifier) as! NewsTableViewCell
-            cell.configure(author: news?.articles?[indexPath.row].source.name ?? "author", news: news?.articles?[indexPath.row].title ?? "news",imageUrl: (news?.articles?[indexPath.row].urlToImage) ?? nil)
-            cell.selectionStyle = .none
-            return cell
+        let cell = tableView.dequeueReusableCell(withIdentifier: NewsTableViewCell.identifier) as! NewsTableViewCell
+        cell.configure(author: news?.articles?[indexPath.row].source.name ?? "author", news: news?.articles?[indexPath.row].title ?? "news",imageUrl: (news?.articles?[indexPath.row].urlToImage) ?? nil)
+        cell.selectionStyle = .none
+        return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -86,8 +112,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
       1
-    }
-    
+    }  
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard
@@ -148,7 +173,7 @@ extension MainViewController:UITableViewDataSourcePrefetching {
             {
                 self.isLoading = true
                 currentPage+=1
-                dopLoadNews(country: "ru", page: currentPage)
+                dopLoadNews(country: currentCountry, page: currentPage)
                 isLoading = false
                 DispatchQueue.main.async {
                     self.tableView.reloadData()

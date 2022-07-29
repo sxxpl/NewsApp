@@ -29,7 +29,9 @@ class NewsService {
                 return
             }
             do {
+    
                 let news = try JSONDecoder().decode(News.self, from: data)
+                print(news)
                 completion(.success(news))
             } catch {
                 print(error)

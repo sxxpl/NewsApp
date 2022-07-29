@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 class MainViewController: UIViewController {
     private let userDefaults = UserDefaults.standard
@@ -13,6 +14,7 @@ class MainViewController: UIViewController {
     private var news: News?
     private var currentPage:Int = 1
     private var isLoading:Bool = false
+    
     var currentCountry:String {
         let userDefaults = UserDefaults.standard
         guard let country = userDefaults.string(forKey: "currentCountry")
@@ -40,7 +42,7 @@ class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "News"
+        navigationItem.title = "News"
         setupNavigationBar()
         setupTableView()
         setupConstraints()
@@ -105,7 +107,7 @@ class MainViewController: UIViewController {
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsTableViewCell.identifier) as! NewsTableViewCell
-        cell.configure(author: news?.articles?[indexPath.row].source.name ?? "author", news: news?.articles?[indexPath.row].title ?? "news",imageUrl: (news?.articles?[indexPath.row].urlToImage) ?? nil)
+        cell.configure(author: news?.articles[indexPath.row].source?.name ?? "author", news: news?.articles[indexPath.row].title ?? "news",imageUrl: (news?.articles[indexPath.row].urlToImage) ?? nil)
         cell.selectionStyle = .none
         return cell
     }
@@ -124,7 +126,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard
-            let stringUrl = news?.articles?[indexPath.row].url,
+            let stringUrl = news?.articles[indexPath.row].url,
             let url = URL(string: stringUrl)
         else {
             return
@@ -134,7 +136,25 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let action = UIContextualAction(style: .normal, title: nil) { action, _, complete in
+        let action = UIContextualAction(style: .normal, title: nil) { [weak self]_, _, complete in
+            do {
+                let realm = try Realm()
+                guard let saveNews = self?.news?.articles[indexPath.row]
+                else {
+                    complete(true)
+                    return
+                }
+                if let _ = realm.object(ofType: NewsArticles.self, forPrimaryKey: saveNews.title) {
+                    complete(true)
+                    return
+                }
+                realm.beginWrite()
+                print(realm.configuration.fileURL)
+                realm.add(saveNews)
+                try realm.commitWrite()
+            } catch {
+                print(error)
+            }
             complete(true)
         }
         
@@ -176,7 +196,7 @@ extension MainViewController {
     }
     
     func dopNews(newNews:News){
-        self.news?.articles?.append(contentsOf: newNews.articles ?? [])
+        self.news?.articles.append(objectsIn: newNews.articles)
     }
 }
 

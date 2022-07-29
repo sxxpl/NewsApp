@@ -8,12 +8,19 @@
 import UIKit
 
 class MainViewController: UIViewController {
-    
+    private let userDefaults = UserDefaults.standard
     private var newsService = NewsService()
     private var news: News?
     private var currentPage:Int = 1
     private var isLoading:Bool = false
-    var currentCountry:String = "ru"
+    var currentCountry:String {
+        let userDefaults = UserDefaults.standard
+        guard let country = userDefaults.string(forKey: "currentCountry")
+        else {
+            return "ru"
+        }
+        return country
+    }
     
     private var tableView:UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -55,6 +62,7 @@ class MainViewController: UIViewController {
         view.addSubview(tableView)
     }
     
+    ///настройка navigationBar, возможность выбора страны
     func setupNavigationBar(){
         let langImage = UIImage(systemName: "flag")
         let langBarButtonItem = UIBarButtonItem(title: nil, image: langImage, primaryAction: nil, menu: langMenu)
@@ -63,7 +71,7 @@ class MainViewController: UIViewController {
     }
             
     func changeCountry(country:String){
-        currentCountry = country
+        userDefaults.set(country, forKey: "currentCountry")
         currentPage = 1
         loadNews(country:currentCountry,page:currentPage)
     }
@@ -123,6 +131,17 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         UIApplication.shared.open(url)
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(style: .normal, title: nil) { action, _, complete in
+            complete(true)
+        }
+        
+        action.image = UIImage(systemName: "star.fill")
+        action.backgroundColor = .systemYellow
+        let swipeAction = UISwipeActionsConfiguration(actions: [action])
+        return swipeAction
     }
 }
 

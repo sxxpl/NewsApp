@@ -55,20 +55,3 @@ class ArticleSourse:Object,Decodable{
         case name = "name"
     }
 }
-
-//struct NewsRealm:Codable {
-//    var totalResults:Int
-//    var articles:[NewsArticles]?
-//}
-//
-//struct NewsArticles:Codable{
-//    var source:ArticleSourse
-//    var title:String
-//    var url:String
-//    var urlToImage:String?
-//    var publishedAt:String
-//}
-//
-//struct ArticleSourse:Codable{
-//    var name:String
-//}

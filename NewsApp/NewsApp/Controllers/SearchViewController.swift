@@ -1,21 +1,22 @@
 //
-//  MainViewController.swift
+//  SearchViewController.swift
 //  NewsApp
 //
-//  Created by Артем Тихонов on 26.07.2022.
+//  Created by Артем Тихонов on 30.07.2022.
 //
 
 import UIKit
 import RealmSwift
 
-class MainViewController: UIViewController {
+class SearchViewController: UIViewController {
+
     private let userDefaults = UserDefaults.standard
     private var newsService = NewsService()
-    private var news: News?         ///переменная, хранящая данные дл таблицы
-    private var currentPage:Int = 1 ///текущая страница
+    private var news: News?
+    private var currentPage:Int = 1
     private var isLoading:Bool = false
     
-    var currentCountry:String {  /// выбранная странна,  сохраняется и загружается в UserDefaults , чтобы выбор сохранялся после закрытия приложения и перехода на другой экран
+    var currentCountry:String {
         let userDefaults = UserDefaults.standard
         guard let country = userDefaults.string(forKey: "currentCountry")
         else {
@@ -24,13 +25,13 @@ class MainViewController: UIViewController {
         return country
     }
     
-    private var tableView:UITableView = {  ///таблица
+    private var tableView:UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     
-    var langMenu:UIMenu{  /// меню выбора языка
+    var langMenu:UIMenu{
         let menuActions = country.allCases.map({(country) -> UIAction in
             return UIAction(title: country.currentName , image: nil) { (_) in
                 self.changeCountry(country: country.rawValue)
@@ -39,15 +40,26 @@ class MainViewController: UIViewController {
         
         return UIMenu(title: "Change country", children: menuActions)
     }
+    
+    var searchBar:UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        return searchBar
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "News"
+        navigationItem.title = "Search news"
         setupNavigationBar()
         setupTableView()
+        setupSearchBar()
         setupConstraints()
         setupRefreshControl()
-        loadNews(country: currentCountry,page: currentPage)
+    }
+    
+    func setupSearchBar(){
+        searchBar.delegate = self
+        view.addSubview(searchBar)
     }
     
     
@@ -75,14 +87,22 @@ class MainViewController: UIViewController {
     func changeCountry(country:String){
         userDefaults.set(country, forKey: "currentCountry")
         currentPage = 1
-        loadNews(country:currentCountry,page:currentPage)
+        guard let text = searchBar.text,
+              text != ""
+        else {
+            return
+        }
+        loadNewsWithSearch(country:currentCountry,page:currentPage,q:text)
     }
             
     
     ///настройка констреинтов tableView
     func setupConstraints(){
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.readableContentGuide.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.readableContentGuide.topAnchor),
+            searchBar.leftAnchor.constraint(equalTo: view.leftAnchor),
+            searchBar.rightAnchor.constraint(equalTo: view.rightAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
             tableView.rightAnchor.constraint(equalTo: view.rightAnchor)
@@ -90,7 +110,6 @@ class MainViewController: UIViewController {
         
     }
     
-    ///настройка refreshCotntrol
     func setupRefreshControl() {
         tableView.refreshControl = UIRefreshControl()
         tableView.refreshControl?.tintColor = .black
@@ -99,13 +118,19 @@ class MainViewController: UIViewController {
     
     @objc func refreshNews(){
         currentPage = 1
-        loadNews(country: currentCountry,page:currentPage)
+        guard let text = searchBar.text,
+              text != ""
+        else {
+            tableView.refreshControl?.endRefreshing()
+            return
+        }
+        loadNewsWithSearch(country: currentCountry,page:currentPage,q:text)
         tableView.refreshControl?.endRefreshing()
     }
 }
 
-/// расширение класса, в котором описывается работа с информацией для таблицы
-extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+
+extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsTableViewCell.identifier) as! NewsTableViewCell
         cell.configure(author: news?.articles[indexPath.row].source?.name ?? "author", news: news?.articles[indexPath.row].title ?? "news",imageUrl: (news?.articles[indexPath.row].urlToImage) ?? nil)
@@ -117,15 +142,14 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         if news?.totalResults ?? 0 < 20*(currentPage){
             return news?.totalResults ?? 0
         } else {
-            return 20 * currentPage
+            return 20*currentPage
         }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
       1
-    }  
+    }
     
-    ///если нажать на ячейку, то пользователь перейдет на сайт с новостью
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard
             let stringUrl = news?.articles[indexPath.row].url,
@@ -137,7 +161,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         UIApplication.shared.open(url)
     }
     
-    ///при свайпе влево пользователь может добавить новость в избранное (сохранение в realm)
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: nil) { [weak self]_, _, complete in
             do {
@@ -169,9 +192,10 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 
 ///расширение, в котором описывается работа с сервером
-extension MainViewController {
-    func loadNews(country:String,page:Int){
-        newsService.getNews(country: country,page: page) {[weak self] result in
+extension SearchViewController {
+    
+    func loadNewsWithSearch(country:String,page:Int,q:String){
+        newsService.getNewsWithSearch(country: country,page: page,q:q) {[weak self] result in
             switch result {
             case .success(let newsData):
                 DispatchQueue.main.async {
@@ -184,8 +208,8 @@ extension MainViewController {
         }
     }
     
-    func dopLoadNews(country:String,page:Int){
-        newsService.getNews(country: country,page: page) {[weak self] result in
+    func dopLoadNewsWithSearch(country:String,page:Int,q:String){
+        newsService.getNewsWithSearch(country: country,page: page,q:q) {[weak self] result in
             switch result {
             case .success(let newsData):
                 DispatchQueue.main.async {
@@ -203,8 +227,7 @@ extension MainViewController {
     }
 }
 
-///добавлена возможность автоматической подгрузки новостей, если пользователь долистал до конца таблицы
-extension MainViewController:UITableViewDataSourcePrefetching {
+extension SearchViewController:UITableViewDataSourcePrefetching {
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         guard
             let maxRow = indexPaths.map({$0.row }).max(),
@@ -216,9 +239,32 @@ extension MainViewController:UITableViewDataSourcePrefetching {
             {
                 self.isLoading = true
                 currentPage+=1
-                dopLoadNews(country: currentCountry, page: currentPage)
+                guard let text = searchBar.text,
+                      text != ""
+                else {
+                    return
+                }
+                dopLoadNewsWithSearch(country: currentCountry, page: currentPage,q:text)
                 isLoading = false
             }
         }
     }
 }
+
+extension SearchViewController:UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        currentPage = 1
+        guard searchText != ""
+        else {
+            DispatchQueue.main.async {
+                self.news?.totalResults = 0
+                self.news?.articles = List<NewsArticles>()
+                self.tableView.reloadData()
+            }
+            return
+        }
+        loadNewsWithSearch(country: currentCountry, page: currentPage, q: searchText)
+    }
+}
+
+

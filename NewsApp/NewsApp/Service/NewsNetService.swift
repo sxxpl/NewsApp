@@ -38,4 +38,27 @@ class NewsService {
             }
         }
     }
+    
+    
+    ///получение данных с параметром q (поиск по новостям)
+    func getNewsWithSearch(country:String,page:Int,q:String,completion:@escaping (Swift.Result<News,Error>) -> ()) {
+        let parameters:Parameters = [
+            "apiKey" : apiKey,
+            "country" : country,
+            "page": page,
+            "pageSize": 20,
+            "q":q
+        ]
+        AF.request(baseUrl, parameters: parameters).responseData { response in
+            guard let data = response.value else {
+                return
+            }
+            do {
+                let news = try JSONDecoder().decode(News.self, from: data)
+                completion(.success(news))
+            } catch {
+                print(error)
+            }
+        }
+    }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 
+///перечисление со странами для выбора
 enum country:String,CaseIterable {
     case ru
     case us
@@ -14,11 +15,11 @@ enum country:String,CaseIterable {
     var currentName:String {
         switch self {
         case .ru:
-            return "Россия"
+            return "Russia"
         case .us:
             return "USA"
         case .ua:
-            return "Украина"
+            return "Ukraine"
         }
     }
 }

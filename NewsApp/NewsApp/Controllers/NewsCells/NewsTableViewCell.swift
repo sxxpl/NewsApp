@@ -11,18 +11,21 @@ class NewsTableViewCell: UITableViewCell {
     
     static let identifier: String = "TextCell"
     
+    ///картинка
     var uiImage:UIImageView = {
         var image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
     
+    ///источник новости
     var authorLabel:UILabel = {
         var label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
+    ///описание новости
     var newsLabel:UILabel = {
         var label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,6 +45,7 @@ class NewsTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    ///настройка компонентов
     private func setupLabels(){
         authorLabel.textColor = .secondaryLabel
         authorLabel.font = .preferredFont(forTextStyle: .caption1)
@@ -53,6 +57,7 @@ class NewsTableViewCell: UITableViewCell {
         uiImage.layer.masksToBounds = true
     }
     
+    ///задание констреинтов
     private func setupConstraints(){
         contentView.addSubview(uiImage)
         contentView.addSubview(authorLabel)
@@ -72,6 +77,7 @@ class NewsTableViewCell: UITableViewCell {
         ])
     }
     
+    ///конфигурация ячейки в зависимости от данных
     func configure(author:String, news:String, imageUrl:String?){
         authorLabel.text = author
         newsLabel.text = news

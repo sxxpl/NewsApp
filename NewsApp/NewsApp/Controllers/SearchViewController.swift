@@ -252,9 +252,10 @@ extension SearchViewController:UITableViewDataSourcePrefetching {
 }
 
 extension SearchViewController:UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         currentPage = 1
-        guard searchText != ""
+        guard searchBar.text != ""
         else {
             DispatchQueue.main.async {
                 self.news?.totalResults = 0
@@ -263,8 +264,23 @@ extension SearchViewController:UISearchBarDelegate {
             }
             return
         }
-        loadNewsWithSearch(country: currentCountry, page: currentPage, q: searchText)
+        loadNewsWithSearch(country: currentCountry, page: currentPage, q: searchBar.text ?? "")
+        searchBar.endEditing(true)
     }
+    
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        currentPage = 1
+//        guard searchText != ""
+//        else {
+//            DispatchQueue.main.async {
+//                self.news?.totalResults = 0
+//                self.news?.articles = List<NewsArticles>()
+//                self.tableView.reloadData()
+//            }
+//            return
+//        }
+//        loadNewsWithSearch(country: currentCountry, page: currentPage, q: searchText)
+//    }
 }
 
 
